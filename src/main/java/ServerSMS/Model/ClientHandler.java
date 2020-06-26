@@ -33,5 +33,73 @@ public class ClientHandler extends Thread {
     //handle Client
     public void run(){
 
+        String input;
+        while(true){
+            try {
+                input = dataReader.readUTF();
+                System.out.println("[Client " + channel + "]: " + input);
+                String[] totalInput = input.split("-");
+
+                if (totalInput[0].equals("QUIT")) {
+                    break;
+                } else {
+
+                    if(totalInput[0].equals("LOGIN")){
+                        //DBA LOOK UP
+                        //ADD USER
+                    }
+                    //AuthenticationService.findUser(totalInput[1], totalInput[2]);
+                    else if(totalInput[0].equals("RESET")){
+                        //client sends reset request for account
+
+                    }
+                    else if (totalInput[0].equals("")){
+
+                    }
+                    else{
+
+                        System.err.println("Command Not Recognized.");
+
+                    }
+
+
+
+
+                }
+            }
+            catch (Exception e){
+
+                try{
+                    System.err.println("Client Connection " + channel + " has been disconnected.");
+                    this.clientSocket.close();
+                    this.dataReader.close();
+                    //this.writeClient.close();
+                    break;
+                }
+                catch(IOException f){
+                    f.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+
+
+
+        }
+        try {
+
+            System.err.println("Client Connection " + this.channel + " has been disconnected.");
+            this.clientSocket.close();
+            this.dataReader.close();
+            //writeClient.close();
+        }
+        catch (IOException io){
+            io.printStackTrace();
+        }
+
+
+
+
     }
-}
+
+    }
+
