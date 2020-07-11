@@ -1,6 +1,10 @@
 package ServerSMS.Model;
 
 
+import ServerSMS.Service.Authenticator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.nashorn.internal.parser.JSONParser;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,6 +18,7 @@ public class ClientHandler extends Thread {
     private Socket clientSocket;
     private DataInputStream dataReader;
     private DataOutputStream dataWriter;
+    private ObjectMapper mapper;
 
     public ClientHandler(Socket client){
         channel = ++id;
@@ -27,45 +32,48 @@ public class ClientHandler extends Thread {
         }
         //replace w/ logging system
         System.out.println("New Client Connection from " + clientSocket.getInetAddress());
-
+        mapper = new ObjectMapper();
 
     }
     //handle Client
     public void run(){
-
+        boolean connected = true;
         String input;
-        while(true){
+        while(connected){
             try {
+
+                int opCode = dataReader.readByte();
                 input = dataReader.readUTF();
                 System.out.println("[Client " + channel + "]: " + input);
-                String[] totalInput = input.split("-");
 
-                if (totalInput[0].equals("QUIT")) {
-                    break;
-                } else {
+                switch(opCode){
 
-                    if(totalInput[0].equals("LOGIN")){
-                        //DBA LOOK UP
-                        //ADD USER
-                    }
-                    //AuthenticationService.findUser(totalInput[1], totalInput[2]);
-                    else if(totalInput[0].equals("RESET")){
-                        //client sends reset request for account
-
-                    }
-                    else if (totalInput[0].equals("")){
-
-                    }
-                    else{
-
-                        System.err.println("Command Not Recognized.");
-
-                    }
-
-
-
+                    case -1:
+                        connected = false;
+                        break;
+                    case 0:
+                        AuthenticationRequest request = mapper.readValue(input, AuthenticationRequest.class);
+                        if(Authenticator.authenticate(request)) {
+                            dataWriter.writeShort(200); //signal success
+                            dataWriter.flush();
+                        }
+                        else{
+                            dataWriter.writeShort(400); //signal failure
+                            dataWriter.flush();
+                        }
+                        break;
+                    case 1:
+                        //recovery via email
+                        break;
+                    case 2:
+                        //process & Transport msg
+                        break;
+                    default:
+                        //notify log w/ unknown / issues
+                        break;
 
                 }
+
             }
             catch (Exception e){
 

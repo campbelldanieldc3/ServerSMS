@@ -17,7 +17,8 @@ public class Server {
 
         System.err.println("Server Started on port: " + PORT);
         //loop to sit and wait for client connection
-        //TODO: Update Loop Condition to allow Manual-Override to Server
+        //TODO: Update Loop Condition to allow Manual-Override to Server: TO be updated when Server /
+        // Admin GUI is created
         while(true){
 
             Socket clientSocket = mainSocket.accept();
